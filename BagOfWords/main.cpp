@@ -54,7 +54,7 @@ public:
 		std::cout << "\tLoading images and annotation files" << std::endl;
 		string imgDir = datasetPath + "/" + "Images";
 		string annotationDir = datasetPath + "/" + "Annotations";
-		for (int catIdx = 0; catIdx < categoryNames.size(); catIdx++)
+		for (unsigned int catIdx = 0; catIdx < categoryNames.size(); catIdx++)
 		//for (int catIdx = 0; catIdx < 1; catIdx++)
 		{
 			string imgCatDir = imgDir + "/" + categoryNames[catIdx];
