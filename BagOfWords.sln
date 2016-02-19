@@ -1,0 +1,74 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BagOfWords", "BagOfWords\BagOfWords.vcxproj", "{BA757A5B-60FA-4FF7-AEDA-A918435D10A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferencedAssemblies", "ReferencedAssemblies", "{C2A2966E-2441-41AA-8C55-1696877BCBEF}"
+	ProjectSection(SolutionItems) = preProject
+		G:\opencv\build\x86\vc10\staticlib\IlmImf.lib = G:\opencv\build\x86\vc10\staticlib\IlmImf.lib
+		G:\opencv\build\x86\vc10\staticlib\IlmImfd.lib = G:\opencv\build\x86\vc10\staticlib\IlmImfd.lib
+		G:\opencv\build\x86\vc10\staticlib\libjasper.lib = G:\opencv\build\x86\vc10\staticlib\libjasper.lib
+		G:\opencv\build\x86\vc10\staticlib\libjasperd.lib = G:\opencv\build\x86\vc10\staticlib\libjasperd.lib
+		G:\opencv\build\x86\vc10\staticlib\libjpeg.lib = G:\opencv\build\x86\vc10\staticlib\libjpeg.lib
+		G:\opencv\build\x86\vc10\staticlib\libjpegd.lib = G:\opencv\build\x86\vc10\staticlib\libjpegd.lib
+		G:\opencv\build\x86\vc10\staticlib\libpng.lib = G:\opencv\build\x86\vc10\staticlib\libpng.lib
+		G:\opencv\build\x86\vc10\staticlib\libpngd.lib = G:\opencv\build\x86\vc10\staticlib\libpngd.lib
+		G:\opencv\build\x86\vc10\staticlib\libtiff.lib = G:\opencv\build\x86\vc10\staticlib\libtiff.lib
+		G:\opencv\build\x86\vc10\staticlib\libtiffd.lib = G:\opencv\build\x86\vc10\staticlib\libtiffd.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_calib3d2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_calib3d2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_calib3d2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_calib3d2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_contrib2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_contrib2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_contrib2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_contrib2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_core2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_core2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_core2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_core2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_features2d2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_features2d2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_features2d2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_features2d2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_flann2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_flann2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_flann2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_flann2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_gpu2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_gpu2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_gpu2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_gpu2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_highgui2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_highgui2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_highgui2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_highgui2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_imgproc2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_imgproc2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_imgproc2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_imgproc2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_legacy2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_legacy2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_legacy2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_legacy2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_ml2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_ml2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_ml2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_ml2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_nonfree2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_nonfree2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_nonfree2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_nonfree2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_objdetect2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_objdetect2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_objdetect2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_objdetect2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_ocl2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_ocl2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_ocl2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_ocl2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_photo2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_photo2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_photo2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_photo2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_stitching2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_stitching2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_stitching2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_stitching2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_superres2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_superres2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_superres2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_superres2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_ts2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_ts2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_ts2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_ts2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_video2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_video2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_video2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_video2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_videostab2411.lib = G:\opencv\build\x86\vc10\staticlib\opencv_videostab2411.lib
+		G:\opencv\build\x86\vc10\staticlib\opencv_videostab2411d.lib = G:\opencv\build\x86\vc10\staticlib\opencv_videostab2411d.lib
+		G:\opencv\build\x86\vc10\staticlib\zlib.lib = G:\opencv\build\x86\vc10\staticlib\zlib.lib
+		G:\opencv\build\x86\vc10\staticlib\zlibd.lib = G:\opencv\build\x86\vc10\staticlib\zlibd.lib
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA757A5B-60FA-4FF7-AEDA-A918435D10A0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA757A5B-60FA-4FF7-AEDA-A918435D10A0}.Debug|Win32.Build.0 = Debug|Win32
+		{BA757A5B-60FA-4FF7-AEDA-A918435D10A0}.Release|Win32.ActiveCfg = Release|Win32
+		{BA757A5B-60FA-4FF7-AEDA-A918435D10A0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
