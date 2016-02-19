@@ -157,8 +157,8 @@ private:
 };
 
 /* Function prototypes */
-void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> imageDescriptors, const int numCodewords);
-void Test(const Caltech101 &Dataset, const Mat codeBook, const vector<vector<Mat>> imageDescriptors);
+void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords);
+void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors);
 
 void main(void)
 {
@@ -195,17 +195,43 @@ void main(void)
 
 	/* Testing */	
 	Test(Dataset, codeBook, imageDescriptors);
-	while(1);
 }
 
 /* Train BoW */
-void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> imageDescriptors, const int numCodewords)
+void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords)
 {
-	
+	SiftFeatureDetector detector;
+	SiftDescriptorExtractor extractor;
+	vector<cv::KeyPoint> keypoints;
+
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+		for (unsigned int im = 0; im < Dataset.trainingImages.size(); im++) {
+			Rect r =  Dataset.trainingAnnotations[cat][im];
+			Mat image = Dataset.trainingImages[cat][im];
+			detector.detect(image, keypoints);
+			for (unsigned int i=0; i < keypoints.size(); i++) {
+			keypoints.erase(
+			   std::remove_if(
+				  keypoints.begin(), keypoints.end(),
+				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
+			   keypoints.end());
+			}
+
+			if (im == 0) {
+				cv::Mat output;
+				drawKeypoints(image, keypoints, output);
+
+				std::ostringstream os;
+				os << "sift_result_" << cat << ".jpg";
+
+				imwrite(os.str() , output);
+			}
+		}
+	}
 }
 
 /* Test BoW */
-void Test(const Caltech101 &Dataset, const Mat codeBook, const vector<vector<Mat>> imageDescriptors)
+void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors)
 {
 	
 }
