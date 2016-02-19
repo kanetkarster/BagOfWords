@@ -202,31 +202,38 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 {
 	SiftFeatureDetector detector;
 	SiftDescriptorExtractor extractor;
+	
 	vector<cv::KeyPoint> keypoints;
+	Mat D;
+	imageDescriptors.resize(Dataset.trainingImages.size());
 
 	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+		vector<Mat> category = imageDescriptors[cat];
 		for (unsigned int im = 0; im < Dataset.trainingImages.size(); im++) {
-			Rect r =  Dataset.trainingAnnotations[cat][im];
-			Mat image = Dataset.trainingImages[cat][im];
+			// Get a reference to the rectangle and image
+			Rect const& r =  Dataset.trainingAnnotations[cat][im];
+			Mat const& image = Dataset.trainingImages[cat][im];
+			Mat tmp;
+			// detect keypoints
 			detector.detect(image, keypoints);
-			for (unsigned int i=0; i < keypoints.size(); i++) {
+			// filter keypoints
 			keypoints.erase(
 			   std::remove_if(
 				  keypoints.begin(), keypoints.end(),
 				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
 			   keypoints.end());
-			}
-
-			if (im == 0) {
-				cv::Mat output;
-				drawKeypoints(image, keypoints, output);
-
-				std::ostringstream os;
-				os << "sift_result_" << cat << ".jpg";
-
-				imwrite(os.str() , output);
-			}
+			detector.compute(image, keypoints, tmp);
+			category.push_back(tmp);
+			D.push_back(tmp);
 		}
+		std::cout << "Drawing..." << std::endl;
+		cv::Mat output;
+		drawKeypoints(D, keypoints, output);
+
+		std::ostringstream os;
+		os << "sift_result_" << cat << ".jpg";
+
+		imwrite(os.str() , output);
 	}
 }
 
