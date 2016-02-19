@@ -166,7 +166,7 @@ void main(void)
 	initModule_nonfree();
 
 	/* Put the full path of the Caltech 101 folder here */
-	const string datasetPath = "C:/Caltech 101";
+	const string datasetPath = "C:/Users/skanet1/vision/BagOfWords/dataset/Caltech 101";
 
 	/* Set the number of training and testing images per category */
 	const int numTrainingData = 40;
@@ -195,6 +195,7 @@ void main(void)
 
 	/* Testing */	
 	Test(Dataset, codeBook, imageDescriptors);
+	while(1);
 }
 
 /* Train BoW */
