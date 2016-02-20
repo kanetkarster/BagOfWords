@@ -190,10 +190,12 @@ void main(void)
 	Mat codeBook;	
 	vector<vector<Mat>> imageDescriptors;
 
-	/* Training */	
+	/* Training */
+	std::cout << "Training" << std::endl;
 	Train(Dataset, codeBook, imageDescriptors, numCodewords);
 
-	/* Testing */	
+	/* Testing */
+	std::cout << "Testing" << std::endl;
 	Test(Dataset, codeBook, imageDescriptors);
 }
 
@@ -213,14 +215,14 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 	imageDescriptors.resize(Dataset.trainingImages.size());
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
-	for (unsigned int cat = 0; cat < 1/*Dataset.trainingImages.size()*/; cat++) {
-		vector<Mat> &category = imageDescriptors[cat];
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+		//vector<Mat> &category = imageDescriptors[cat];
 		vector<vector<KeyPoint>> &category_keys = imageKeypoints[cat];
 
-		category.resize(Dataset.trainingImages[cat].size());
+		imageDescriptors[cat].resize(Dataset.trainingImages[cat].size());
 		category_keys.resize(Dataset.trainingImages[cat].size());
 
-		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
+		for (unsigned int im = 0; im < 2/*Dataset.trainingImages[cat].size()*/; im++) {
 			// Get a reference to the rectangle and image
 			Rect const& r =  Dataset.trainingAnnotations[cat][im];
 			Mat const& image = Dataset.trainingImages[cat][im];
@@ -239,19 +241,8 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 			// compute SIFT features
 			extractor->compute(image, keypoints, tmp);
-			category[im] = image;
+			//category[im] = image;
 			category_keys[im] = keypoints;
-
-			//if (im == 0) {
-			//	std::cout << "Drawing..." << std::endl;
-			//	cv::Mat output;
-			//	drawKeypoints(image
-			//		, keypoints, output, Scalar::all(-1),DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-
-			//	std::ostringstream os;
-			//	os << "sift_result_" << cat << ".jpg";
-			//	imwrite(os.str() , output);
-			//}
 			D.push_back(tmp);
 		}
 	}
@@ -268,11 +259,11 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 	descriptor_extractor->setVocabulary(codeBook);
 
 	std::cout << "Finding Bag of Words for images" << std::endl;
-
-	for (unsigned int cat = 0; cat < 1/*Dataset.trainingImages.size()*/; cat++) {
+	std::cout << "Testing for " << Dataset.trainingImages.size() << " Images" << std::endl;
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
 		std::cout << "\tcomputing" << std::endl;
-		for (unsigned int im = 0; im < imageDescriptors[cat].size(); im++) {
-			Mat const& img = imageDescriptors[cat][im];
+		for (unsigned int im = 0; im < 2/*imageDescriptors[cat].size()*/; im++) {
+			Mat const& img = Dataset.trainingImages[cat][im];
 			Mat out;
 			vector<KeyPoint> &kpts = imageKeypoints[cat][im];
 			descriptor_extractor->compute2(img, kpts, out);
@@ -284,5 +275,51 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 /* Test BoW */
 void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors)
 {
-	
+	Ptr<FeatureDetector> detector = new SiftFeatureDetector;
+	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
+	Ptr<DescriptorMatcher> matcher = new BFMatcher;
+
+	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new BOWImgDescriptorExtractor(extractor, matcher);
+
+	vector<cv::KeyPoint> keypoints;
+
+	std::cout << "Test size: " << Dataset.testImages.size() << std::endl;
+	for (unsigned int cat = 0; cat < Dataset.testImages.size(); cat++) {
+		std::cout << "Internal Size: " << Dataset.testImages[cat].size() << std::endl;
+		for (unsigned int im = 0; im < 2/*Dataset.testImages[cat].size()*/; im++) {
+			// Get a reference to the rectangle and image
+			Rect r =  Dataset.testAnnotations[cat][im];
+			Mat image = Dataset.testImages[cat][im];
+			Mat test_image;
+			// detect keypoints
+			detector->detect(image, keypoints);
+			
+			// filter keypoints
+			keypoints.erase(
+			   std::remove_if(
+				  keypoints.begin(), keypoints.end(),
+				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
+			   keypoints.end()
+			);
+			descriptor_extractor->compute2(image, keypoints, test_image);
+
+			double min = DBL_MAX;
+			int category = -1;
+			for (unsigned int i = 0; i < Dataset.trainingImages.size(); i++) {
+				for (unsigned int j = 0; j < 2/*Dataset.trainingImages[i].size()*/; j++) {
+
+					std::cout << "Size of test image: " << test_image.size << std::endl;
+					std::cout << "Size of descriptor: " << imageDescriptors[i][j] << std::endl;
+
+					double d = norm(test_image, imageDescriptors[i][j]);
+					if (d < min) {
+						std::cout << "Better Match match in category: " << i << std::endl;
+						category = i;
+					}
+				}
+			}
+			std::cout << "Best match in category: " << category << std::endl;
+		}
+	}
+	while(1);
 }
