@@ -216,16 +216,12 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
 	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
-		//vector<Mat> &category = imageDescriptors[cat];
-		vector<vector<KeyPoint>> &category_keys = imageKeypoints[cat];
-
 		imageDescriptors[cat].resize(Dataset.trainingImages[cat].size());
-		category_keys.resize(Dataset.trainingImages[cat].size());
-
+		imageKeypoints[cat].resize(Dataset.trainingImages[cat].size());
 		for (unsigned int im = 0; im < 2/*Dataset.trainingImages[cat].size()*/; im++) {
 			// Get a reference to the rectangle and image
-			Rect const& r =  Dataset.trainingAnnotations[cat][im];
-			Mat const& image = Dataset.trainingImages[cat][im];
+			Rect r =  Dataset.trainingAnnotations[cat][im];
+			Mat image = Dataset.trainingImages[cat][im];
 			Mat tmp;
 
 			// detect keypoints
@@ -241,8 +237,8 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 			// compute SIFT features
 			extractor->compute(image, keypoints, tmp);
-			//category[im] = image;
-			category_keys[im] = keypoints;
+
+			imageKeypoints[cat][im] = keypoints;
 			D.push_back(tmp);
 		}
 	}
@@ -280,7 +276,7 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 	Ptr<DescriptorMatcher> matcher = new BFMatcher;
 
 	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new BOWImgDescriptorExtractor(extractor, matcher);
-
+	descriptor_extractor->setVocabulary(codeBook);
 	vector<cv::KeyPoint> keypoints;
 
 	std::cout << "Test size: " << Dataset.testImages.size() << std::endl;
@@ -307,10 +303,6 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 			int category = -1;
 			for (unsigned int i = 0; i < Dataset.trainingImages.size(); i++) {
 				for (unsigned int j = 0; j < 2/*Dataset.trainingImages[i].size()*/; j++) {
-
-					std::cout << "Size of test image: " << test_image.size << std::endl;
-					std::cout << "Size of descriptor: " << imageDescriptors[i][j] << std::endl;
-
 					double d = norm(test_image, imageDescriptors[i][j]);
 					if (d < min) {
 						std::cout << "Better Match match in category: " << i << std::endl;
