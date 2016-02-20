@@ -202,40 +202,73 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 {
 	Ptr<FeatureDetector> detector = new SiftFeatureDetector;
 	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
-	
+	Ptr<DescriptorMatcher> matcher = new BFMatcher;
+	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new ::BOWImgDescriptorExtractor(extractor, matcher);
+
+	BOWKMeansTrainer trainer(Dataset.trainingImages.size());
 	vector<cv::KeyPoint> keypoints;
+	vector<vector<vector<KeyPoint>>> imageKeypoints;
+
 	Mat D;
 	imageDescriptors.resize(Dataset.trainingImages.size());
 
+	imageKeypoints.resize(Dataset.trainingImages.size());
 	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
-		vector<Mat> category = imageDescriptors[cat];
-		for (unsigned int im = 0; im < Dataset.trainingImages.size(); im++) {
+		vector<Mat> &category = imageDescriptors[cat];
+		vector<vector<KeyPoint>> &category_keys = imageKeypoints[cat];
+
+		category.resize(Dataset.trainingImages[cat].size());
+		category_keys.resize(Dataset.trainingImages[cat].size());
+
+		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
 			Rect const& r =  Dataset.trainingAnnotations[cat][im];
 			Mat const& image = Dataset.trainingImages[cat][im];
 			Mat tmp;
+
 			// detect keypoints
 			detector->detect(image, keypoints);
+			
 			// filter keypoints
 			keypoints.erase(
 			   std::remove_if(
 				  keypoints.begin(), keypoints.end(),
 				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
-			   keypoints.end());
+			   keypoints.end()
+			);
+
+			// compute SIFT features
 			extractor->compute(image, keypoints, tmp);
-			category.push_back(tmp);
+			category[im] = tmp;
+			category_keys[im] = keypoints;
 
-			if (im == 0) {
-				std::cout << "Drawing..." << std::endl;
-				cv::Mat output;
-				drawKeypoints(image, keypoints, output);
+			//if (im == 0) {
+			//	std::cout << "Drawing..." << std::endl;
+			//	cv::Mat output;
+			//	drawKeypoints(image
+			//		, keypoints, output, Scalar::all(-1),DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-				std::ostringstream os;
-				os << "sift_result_" << cat << ".jpg";
-				imwrite(os.str() , output);
-				return;
-			}
+			//	std::ostringstream os;
+			//	os << "sift_result_" << cat << ".jpg";
+			//	imwrite(os.str() , output);
+			//}
 			D.push_back(tmp);
+		}
+	}
+
+	// Add descriptors to trainer
+	trainer.add(D);
+	codeBook = trainer.cluster();
+
+	// Set Vocabulary
+	descriptor_extractor->setVocabulary(codeBook);
+	for (unsigned int cat = 0; cat < imageDescriptors.size(); cat++) {
+		for (unsigned int im = 0; im < imageDescriptors.size(); im++) {
+			Mat const& img = imageDescriptors[cat][im];
+			Mat out;
+			vector<KeyPoint> &kpts = imageKeypoints[cat][im];
+			descriptor_extractor->compute2(img, kpts, out);
+			imageDescriptors[cat][im] = out;
 		}
 	}
 }
