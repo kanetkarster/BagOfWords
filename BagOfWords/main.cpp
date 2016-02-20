@@ -215,10 +215,10 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 	imageDescriptors.resize(Dataset.trainingImages.size());
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
-	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
 		imageDescriptors[cat].resize(Dataset.trainingImages[cat].size());
 		imageKeypoints[cat].resize(Dataset.trainingImages[cat].size());
-		for (unsigned int im = 0; im < 2/*Dataset.trainingImages[cat].size()*/; im++) {
+		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
 			Rect r =  Dataset.trainingAnnotations[cat][im];
 			Mat image = Dataset.trainingImages[cat][im];
@@ -256,9 +256,9 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 	std::cout << "Finding Bag of Words for images" << std::endl;
 	std::cout << "Testing for " << Dataset.trainingImages.size() << " Images" << std::endl;
-	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
 		std::cout << "\tcomputing" << std::endl;
-		for (unsigned int im = 0; im < 2/*imageDescriptors[cat].size()*/; im++) {
+		for (unsigned int im = 0; im < imageDescriptors[cat].size(); im++) {
 			Mat const& img = Dataset.trainingImages[cat][im];
 			Mat out;
 			vector<KeyPoint> &kpts = imageKeypoints[cat][im];
@@ -278,15 +278,15 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new BOWImgDescriptorExtractor(extractor, matcher);
 	descriptor_extractor->setVocabulary(codeBook);
 	vector<cv::KeyPoint> keypoints;
-
+	int total_correct = 0, total = 0;
 	std::cout << "Test size: " << Dataset.testImages.size() << std::endl;
 	for (unsigned int cat = 0; cat < Dataset.testImages.size(); cat++) {
 		std::cout << "Internal Size: " << Dataset.testImages[cat].size() << std::endl;
-		for (unsigned int im = 0; im < 2/*Dataset.testImages[cat].size()*/; im++) {
+		for (unsigned int im = 0; im < Dataset.testImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
 			Rect r =  Dataset.testAnnotations[cat][im];
 			Mat image = Dataset.testImages[cat][im];
-			Mat test_image;
+			Mat bag;
 			// detect keypoints
 			detector->detect(image, keypoints);
 			
@@ -297,21 +297,33 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
 			   keypoints.end()
 			);
-			descriptor_extractor->compute2(image, keypoints, test_image);
+
+			descriptor_extractor->compute2(image, keypoints, bag);
 
 			double min = DBL_MAX;
 			int category = -1;
-			for (unsigned int i = 0; i < Dataset.trainingImages.size(); i++) {
-				for (unsigned int j = 0; j < 2/*Dataset.trainingImages[i].size()*/; j++) {
-					double d = norm(test_image, imageDescriptors[i][j]);
+			for (unsigned int i = 0; i < 2; i++) {
+				for (unsigned int j = 0; j < Dataset.trainingImages[i].size(); j++) {
+					double d = norm(bag, imageDescriptors[i][j]);
 					if (d < min) {
 						std::cout << "Better Match match in category: " << i << std::endl;
+						min = d;
 						category = i;
 					}
 				}
 			}
+
+			std::ostringstream os;
+			os << "test_image_" << cat << "_" << im << "_actual_" << Dataset.categoryNames[cat] << "_guessed_ " << Dataset.categoryNames[category] << ".jpg";
+			imwrite(os.str() , image);
 			std::cout << "Best match in category: " << category << std::endl;
+			if (cat == category) {
+				total_correct++;
+			}
+			total++;
 		}
 	}
-	while(1);
+	std::cout << "correctly guessed " << total_correct << " out of " << total << "images" <<std::endl;
+	std::cout << "rate was" << (double) total_correct / (double) total << std::endl;
+	std::system("pause");
 }
