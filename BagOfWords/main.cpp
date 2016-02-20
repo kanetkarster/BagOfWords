@@ -158,7 +158,7 @@ private:
 
 /* Function prototypes */
 void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords);
-void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors);
+void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors, int num);
 
 void main(void)
 {
@@ -173,7 +173,7 @@ void main(void)
 	const int numTestingData = 2;
 
 	/* Set the number of codewords*/
-	const int numCodewords = 20; 
+	const int numCodewords = 50; 
 
 	/* Load the dataset by instantiating the helper class */
 	Caltech101 Dataset(datasetPath, numTrainingData, numTestingData);
@@ -196,7 +196,7 @@ void main(void)
 
 	/* Testing */
 	std::cout << "Testing" << std::endl;
-	Test(Dataset, codeBook, imageDescriptors);
+	Test(Dataset, codeBook, imageDescriptors, numCodewords);
 }
 
 /* Train BoW */
@@ -207,7 +207,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 	Ptr<DescriptorMatcher> matcher = new BFMatcher;
 	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new ::BOWImgDescriptorExtractor(extractor, matcher);
 
-	BOWKMeansTrainer trainer(Dataset.trainingImages.size());
+	BOWKMeansTrainer trainer(numCodewords);
 	vector<cv::KeyPoint> keypoints;
 	vector<vector<vector<KeyPoint>>> imageKeypoints;
 
@@ -268,7 +268,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 }
 
 /* Test BoW */
-void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors)
+void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors, int num)
 {
 	Ptr<FeatureDetector> detector = new SiftFeatureDetector;
 	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
@@ -313,9 +313,9 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 			}
 
 			std::ostringstream os;
-			os << "test_image_" << cat << "_" << im << "_actual_" << Dataset.categoryNames[cat] << "_guessed_ " << Dataset.categoryNames[category] << ".jpg";
+			os << "test_image_" << cat << "_" << im << "_codewords_" << num << "_actual_" << Dataset.categoryNames[cat] << "_guessed_ " << Dataset.categoryNames[category] << ".jpg";
 			imwrite(os.str() , image);
-			std::cout << "Best match in category: " << category << std::endl;
+			//std::cout << "Best match in category: " << category << std::endl;
 			if (cat == category) {
 				total_correct++;
 			}
