@@ -213,7 +213,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 	imageDescriptors.resize(Dataset.trainingImages.size());
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
-	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+	for (unsigned int cat = 0; cat < 1/*Dataset.trainingImages.size()*/; cat++) {
 		vector<Mat> &category = imageDescriptors[cat];
 		vector<vector<KeyPoint>> &category_keys = imageKeypoints[cat];
 
@@ -239,7 +239,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 			// compute SIFT features
 			extractor->compute(image, keypoints, tmp);
-			category[im] = tmp;
+			category[im] = image;
 			category_keys[im] = keypoints;
 
 			//if (im == 0) {
@@ -256,14 +256,22 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 		}
 	}
 
+	std::cout << "Found Keypoints" << std::endl;
+
 	// Add descriptors to trainer
 	trainer.add(D);
 	codeBook = trainer.cluster();
 
+	std::cout << "Build Codebook" << std::endl;
+
 	// Set Vocabulary
 	descriptor_extractor->setVocabulary(codeBook);
-	for (unsigned int cat = 0; cat < imageDescriptors.size(); cat++) {
-		for (unsigned int im = 0; im < imageDescriptors.size(); im++) {
+
+	std::cout << "Finding Bag of Words for images" << std::endl;
+
+	for (unsigned int cat = 0; cat < 1/*Dataset.trainingImages.size()*/; cat++) {
+		std::cout << "\tcomputing" << std::endl;
+		for (unsigned int im = 0; im < imageDescriptors[cat].size(); im++) {
 			Mat const& img = imageDescriptors[cat][im];
 			Mat out;
 			vector<KeyPoint> &kpts = imageKeypoints[cat][im];
