@@ -157,8 +157,9 @@ private:
 };
 
 /* Function prototypes */
-void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords);
+void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords, Mat& D, Ptr<DescriptorExtractor> extractor, vector<vector<vector<KeyPoint>>> &imageKeypoints);
 void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors, int num);
+void find_all_keypoints(const Caltech101 &Dataset, vector<vector<vector<KeyPoint>>> &imageKeypoints, Mat &D, Ptr<DescriptorExtractor> extractor);
 
 void main(void)
 {
@@ -173,7 +174,7 @@ void main(void)
 	const int numTestingData = 2;
 
 	/* Set the number of codewords*/
-	const int numCodewords = 50; 
+	const int numCodewords = 100; 
 
 	/* Load the dataset by instantiating the helper class */
 	Caltech101 Dataset(datasetPath, numTrainingData, numTestingData);
@@ -189,34 +190,38 @@ void main(void)
 	/* Variable definition */
 	Mat codeBook;	
 	vector<vector<Mat>> imageDescriptors;
+	vector<vector<vector<KeyPoint>>> imageKeypoints;
+	
+	imageDescriptors.resize(Dataset.trainingImages.size());
+
+	for (unsigned int i=0; i<Dataset.trainingImages.size(); i++) {
+		imageDescriptors[i].resize(Dataset.trainingImages[i].size());
+	}
+
+	Mat D;
+	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
+
+	find_all_keypoints(Dataset, imageKeypoints, D, extractor);
 
 	/* Training */
 	std::cout << "Training" << std::endl;
-	Train(Dataset, codeBook, imageDescriptors, numCodewords);
+	Train(Dataset, codeBook, imageDescriptors, numCodewords,  D, extractor, imageKeypoints);
 
 	/* Testing */
-	std::cout << "Testing" << std::endl;
+	std::cout << "Testing with" << std::endl;
 	Test(Dataset, codeBook, imageDescriptors, numCodewords);
+	std::cout << "Done running with " << numCodewords << " codewords" << std::endl;
+	std::system("pause");
 }
 
-/* Train BoW */
-void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords)
-{
+/* get keypoints */
+
+void find_all_keypoints(const Caltech101 &Dataset, vector<vector<vector<KeyPoint>>> &imageKeypoints, Mat &D, Ptr<DescriptorExtractor> extractor) {
 	Ptr<FeatureDetector> detector = new SiftFeatureDetector;
-	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
-	Ptr<DescriptorMatcher> matcher = new BFMatcher;
-	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new ::BOWImgDescriptorExtractor(extractor, matcher);
-
-	BOWKMeansTrainer trainer(numCodewords);
 	vector<cv::KeyPoint> keypoints;
-	vector<vector<vector<KeyPoint>>> imageKeypoints;
-
-	Mat D;
-	imageDescriptors.resize(Dataset.trainingImages.size());
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
-	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
-		imageDescriptors[cat].resize(Dataset.trainingImages[cat].size());
+	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
 		imageKeypoints[cat].resize(Dataset.trainingImages[cat].size());
 		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
@@ -229,10 +234,10 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 			
 			// filter keypoints
 			keypoints.erase(
-			   std::remove_if(
-				  keypoints.begin(), keypoints.end(),
-				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
-			   keypoints.end()
+				std::remove_if(
+					keypoints.begin(), keypoints.end(),
+					[&r](KeyPoint k){ return !r.contains(k.pt);}),
+				keypoints.end()
 			);
 
 			// compute SIFT features
@@ -242,6 +247,15 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 			D.push_back(tmp);
 		}
 	}
+}
+
+/* Train BoW */
+void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageDescriptors, const int numCodewords, Mat& D, Ptr<DescriptorExtractor> extractor, vector<vector<vector<KeyPoint>>> &imageKeypoints)
+{
+	Ptr<DescriptorMatcher> matcher = new BFMatcher;
+	Ptr<BOWImgDescriptorExtractor> descriptor_extractor = new ::BOWImgDescriptorExtractor(extractor, matcher);
+
+	BOWKMeansTrainer trainer(numCodewords);
 
 	std::cout << "Found Keypoints" << std::endl;
 
@@ -256,7 +270,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 	std::cout << "Finding Bag of Words for images" << std::endl;
 	std::cout << "Testing for " << Dataset.trainingImages.size() << " Images" << std::endl;
-	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
+	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
 		for (unsigned int im = 0; im < imageDescriptors[cat].size(); im++) {
 			Mat const& img = Dataset.trainingImages[cat][im];
 			Mat out;
@@ -301,7 +315,7 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 
 			double min = DBL_MAX;
 			int category = -1;
-			for (unsigned int i = 0; i < Dataset.trainingImages.size(); i++) {
+			for (unsigned int i = 0; i < 2; i++) {
 				for (unsigned int j = 0; j < Dataset.trainingImages[i].size(); j++) {
 					double d = norm(bag, imageDescriptors[i][j]);
 					if (d < min) {
@@ -324,5 +338,4 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 	}
 	std::cout << "correctly guessed " << total_correct << " out of " << total << " images" <<std::endl;
 	std::cout << "rate was " << (double) total_correct / (double) total << std::endl;
-	std::system("pause");
 }
