@@ -174,8 +174,8 @@ void main(void)
 	const int numTestingData = 2;
 
 	/* Set the number of codewords*/
-	const int numCodewords = 100; 
-
+	//const int numCodewords = 100; 
+	int n_codewords[] = {/*10, 20, 50, 100,*/ 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 	/* Load the dataset by instantiating the helper class */
 	Caltech101 Dataset(datasetPath, numTrainingData, numTestingData);
 
@@ -202,15 +202,16 @@ void main(void)
 	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
 
 	find_all_keypoints(Dataset, imageKeypoints, D, extractor);
+	for (int i=0; i < sizeof(n_codewords); i++) {
+		/* Training */
+		std::cout << "Training " << n_codewords[i] << std::endl;
+		Train(Dataset, codeBook, imageDescriptors, n_codewords[i],  D, extractor, imageKeypoints);
 
-	/* Training */
-	std::cout << "Training" << std::endl;
-	Train(Dataset, codeBook, imageDescriptors, numCodewords,  D, extractor, imageKeypoints);
-
-	/* Testing */
-	std::cout << "Testing with" << std::endl;
-	Test(Dataset, codeBook, imageDescriptors, numCodewords);
-	std::cout << "Done running with " << numCodewords << " codewords" << std::endl;
+		/* Testing */
+		std::cout << "Testing " << n_codewords[i] << std::endl;
+		Test(Dataset, codeBook, imageDescriptors, n_codewords[i]);
+		std::cout << "Done running with " << n_codewords[i] << " codewords" << std::endl;
+	}
 	std::system("pause");
 }
 
@@ -221,7 +222,7 @@ void find_all_keypoints(const Caltech101 &Dataset, vector<vector<vector<KeyPoint
 	vector<cv::KeyPoint> keypoints;
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
-	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
 		imageKeypoints[cat].resize(Dataset.trainingImages[cat].size());
 		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
@@ -257,20 +258,18 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 	BOWKMeansTrainer trainer(numCodewords);
 
-	std::cout << "Found Keypoints" << std::endl;
-
 	// Add descriptors to trainer
 	trainer.add(D);
 	codeBook = trainer.cluster();
 
-	std::cout << "Build Codebook" << std::endl;
+	//std::cout << "Build Codebook" << std::endl;
 
 	// Set Vocabulary
 	descriptor_extractor->setVocabulary(codeBook);
 
-	std::cout << "Finding Bag of Words for images" << std::endl;
-	std::cout << "Testing for " << Dataset.trainingImages.size() << " Images" << std::endl;
-	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
+	//std::cout << "Finding Bag of Words for images" << std::endl;
+	//std::cout << "Testing for " << Dataset.trainingImages.size() << " Images" << std::endl;
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
 		for (unsigned int im = 0; im < imageDescriptors[cat].size(); im++) {
 			Mat const& img = Dataset.trainingImages[cat][im];
 			Mat out;
@@ -315,7 +314,7 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 
 			double min = DBL_MAX;
 			int category = -1;
-			for (unsigned int i = 0; i < 2; i++) {
+			for (unsigned int i = 0; i < Dataset.trainingImages.size(); i++) {
 				for (unsigned int j = 0; j < Dataset.trainingImages[i].size(); j++) {
 					double d = norm(bag, imageDescriptors[i][j]);
 					if (d < min) {
