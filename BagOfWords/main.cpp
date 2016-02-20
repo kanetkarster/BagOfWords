@@ -173,7 +173,7 @@ void main(void)
 	const int numTestingData = 2;
 
 	/* Set the number of codewords*/
-	const int numCodewords = 100; 
+	const int numCodewords = 20; 
 
 	/* Load the dataset by instantiating the helper class */
 	Caltech101 Dataset(datasetPath, numTrainingData, numTestingData);
@@ -215,7 +215,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 	imageDescriptors.resize(Dataset.trainingImages.size());
 
 	imageKeypoints.resize(Dataset.trainingImages.size());
-	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
 		imageDescriptors[cat].resize(Dataset.trainingImages[cat].size());
 		imageKeypoints[cat].resize(Dataset.trainingImages[cat].size());
 		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
@@ -256,8 +256,7 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 
 	std::cout << "Finding Bag of Words for images" << std::endl;
 	std::cout << "Testing for " << Dataset.trainingImages.size() << " Images" << std::endl;
-	for (unsigned int cat = 0; cat < 2/*Dataset.trainingImages.size()*/; cat++) {
-		std::cout << "\tcomputing" << std::endl;
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
 		for (unsigned int im = 0; im < imageDescriptors[cat].size(); im++) {
 			Mat const& img = Dataset.trainingImages[cat][im];
 			Mat out;
@@ -279,9 +278,9 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 	descriptor_extractor->setVocabulary(codeBook);
 	vector<cv::KeyPoint> keypoints;
 	int total_correct = 0, total = 0;
-	std::cout << "Test size: " << Dataset.testImages.size() << std::endl;
+	//std::cout << "Test size: " << Dataset.testImages.size() << std::endl;
 	for (unsigned int cat = 0; cat < Dataset.testImages.size(); cat++) {
-		std::cout << "Internal Size: " << Dataset.testImages[cat].size() << std::endl;
+		//std::cout << "Internal Size: " << Dataset.testImages[cat].size() << std::endl;
 		for (unsigned int im = 0; im < Dataset.testImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
 			Rect r =  Dataset.testAnnotations[cat][im];
@@ -302,11 +301,11 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 
 			double min = DBL_MAX;
 			int category = -1;
-			for (unsigned int i = 0; i < 2; i++) {
+			for (unsigned int i = 0; i < Dataset.trainingImages.size(); i++) {
 				for (unsigned int j = 0; j < Dataset.trainingImages[i].size(); j++) {
 					double d = norm(bag, imageDescriptors[i][j]);
 					if (d < min) {
-						std::cout << "Better Match match in category: " << i << std::endl;
+						//std::cout << "Better Match match in category: " << i << std::endl;
 						min = d;
 						category = i;
 					}
@@ -323,7 +322,7 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 			total++;
 		}
 	}
-	std::cout << "correctly guessed " << total_correct << " out of " << total << "images" <<std::endl;
-	std::cout << "rate was" << (double) total_correct / (double) total << std::endl;
+	std::cout << "correctly guessed " << total_correct << " out of " << total << " images" <<std::endl;
+	std::cout << "rate was " << (double) total_correct / (double) total << std::endl;
 	std::system("pause");
 }
