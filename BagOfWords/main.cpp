@@ -175,7 +175,7 @@ void main(void)
 
 	/* Set the number of codewords*/
 	//const int numCodewords = 100; 
-	int n_codewords[] = {/*10, 20, 50, 100,*/ 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+	int n_codewords[] = {10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 	/* Load the dataset by instantiating the helper class */
 	Caltech101 Dataset(datasetPath, numTrainingData, numTestingData);
 
@@ -234,12 +234,12 @@ void find_all_keypoints(const Caltech101 &Dataset, vector<vector<vector<KeyPoint
 			detector->detect(image, keypoints);
 			
 			// filter keypoints
-			keypoints.erase(
-				std::remove_if(
-					keypoints.begin(), keypoints.end(),
-					[&r](KeyPoint k){ return !r.contains(k.pt);}),
-				keypoints.end()
-			);
+			//keypoints.erase(
+			//	std::remove_if(
+			//		keypoints.begin(), keypoints.end(),
+			//		[&r](KeyPoint k){ return !r.contains(k.pt);}),
+			//	keypoints.end()
+			//);
 
 			// compute SIFT features
 			extractor->compute(image, keypoints, tmp);
@@ -303,12 +303,12 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 			detector->detect(image, keypoints);
 			
 			// filter keypoints
-			keypoints.erase(
-			   std::remove_if(
-				  keypoints.begin(), keypoints.end(),
-				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
-			   keypoints.end()
-			);
+			//keypoints.erase(
+			//   std::remove_if(
+			//	  keypoints.begin(), keypoints.end(),
+			//	  [&r](KeyPoint k){ return !r.contains(k.pt);}),
+			//   keypoints.end()
+			//);
 
 			descriptor_extractor->compute2(image, keypoints, bag);
 
