@@ -161,13 +161,15 @@ void Train(const Caltech101 &Dataset, Mat &codeBook, vector<vector<Mat>> &imageD
 void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> const& imageDescriptors, int num);
 void find_all_keypoints(const Caltech101 &Dataset, vector<vector<vector<KeyPoint>>> &imageKeypoints, Mat &D, Ptr<DescriptorExtractor> extractor);
 
+std::ofstream myfile;
+
 void main(void)
 {
 	/* Initialize OpenCV nonfree module */
 	initModule_nonfree();
 
 	/* Put the full path of the Caltech 101 folder here */
-	const string datasetPath = "C:/Users/skanet1/vision/BagOfWords/dataset/Caltech 101";
+	const string datasetPath = "C:/Users/skanet1/vision2/BagOfWords/dataset/Caltech 101";
 
 	/* Set the number of training and testing images per category */
 	const int numTrainingData = 40;
@@ -200,7 +202,7 @@ void main(void)
 
 	Mat D;
 	Ptr<DescriptorExtractor> extractor = new SiftDescriptorExtractor;
-
+	myfile.open ("TestingWithTraining.txt");
 	find_all_keypoints(Dataset, imageKeypoints, D, extractor);
 	for (int i=0; i < sizeof(n_codewords); i++) {
 		/* Training */
@@ -212,6 +214,7 @@ void main(void)
 		Test(Dataset, codeBook, imageDescriptors, n_codewords[i]);
 		std::cout << "Done running with " << n_codewords[i] << " codewords" << std::endl;
 	}
+	myfile.close();
 	std::system("pause");
 }
 
@@ -234,12 +237,12 @@ void find_all_keypoints(const Caltech101 &Dataset, vector<vector<vector<KeyPoint
 			detector->detect(image, keypoints);
 			
 			// filter keypoints
-			//keypoints.erase(
-			//	std::remove_if(
-			//		keypoints.begin(), keypoints.end(),
-			//		[&r](KeyPoint k){ return !r.contains(k.pt);}),
-			//	keypoints.end()
-			//);
+			keypoints.erase(
+				std::remove_if(
+					keypoints.begin(), keypoints.end(),
+					[&r](KeyPoint k){ return !r.contains(k.pt);}),
+				keypoints.end()
+			);
 
 			// compute SIFT features
 			extractor->compute(image, keypoints, tmp);
@@ -292,9 +295,9 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 	vector<cv::KeyPoint> keypoints;
 	int total_correct = 0, total = 0;
 	//std::cout << "Test size: " << Dataset.testImages.size() << std::endl;
-	for (unsigned int cat = 0; cat < Dataset.testImages.size(); cat++) {
+	for (unsigned int cat = 0; cat < Dataset.trainingImages.size(); cat++) {
 		//std::cout << "Internal Size: " << Dataset.testImages[cat].size() << std::endl;
-		for (unsigned int im = 0; im < Dataset.testImages[cat].size(); im++) {
+		for (unsigned int im = 0; im < Dataset.trainingImages[cat].size(); im++) {
 			// Get a reference to the rectangle and image
 			Rect r =  Dataset.testAnnotations[cat][im];
 			Mat image = Dataset.testImages[cat][im];
@@ -303,12 +306,12 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 			detector->detect(image, keypoints);
 			
 			// filter keypoints
-			//keypoints.erase(
-			//   std::remove_if(
-			//	  keypoints.begin(), keypoints.end(),
-			//	  [&r](KeyPoint k){ return !r.contains(k.pt);}),
-			//   keypoints.end()
-			//);
+			keypoints.erase(
+			   std::remove_if(
+				  keypoints.begin(), keypoints.end(),
+				  [&r](KeyPoint k){ return !r.contains(k.pt);}),
+			   keypoints.end()
+			);
 
 			descriptor_extractor->compute2(image, keypoints, bag);
 
@@ -337,4 +340,8 @@ void Test(const Caltech101 &Dataset, const Mat codeBook, vector<vector<Mat>> con
 	}
 	std::cout << "correctly guessed " << total_correct << " out of " << total << " images" <<std::endl;
 	std::cout << "rate was " << (double) total_correct / (double) total << std::endl;
+
+	myfile << "correctly guessed " << total_correct << " out of " << total << " images" << "\n";
+	myfile << "rate was " << (double) total_correct / (double) total << "\n";
+
 }
